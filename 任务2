@@ -1,0 +1,41 @@
+import os
+from openai import OpenAI
+
+def get_chatbot_response(user_input):
+    """
+    调用 DeepSeek 模型获取回复
+    """
+    # 初始化客户端，使用 DeepSeek 官方或第三方兼容接口
+    # 这里的 base_url 和 api_key 需根据你实际使用的平台配置
+    client = OpenAI(
+        api_key=os.getenv("DEEPSEEK_API_KEY"), 
+        base_url="https://api.deepseek.com/v1"  # 官方接口地址
+    )
+
+    try:
+        # 1. 发送文本问题并调用模型
+        response = client.chat.completions.create(
+            model="deepseek-chat",  # 指定模型名称
+            messages=[
+                {"role": "system", "content": "你是一个专业的医学助手。"},
+                {"role": "user", "content": user_input},
+            ],
+            stream=False
+        )
+        
+        # 2. 获取回复内容
+        return response.choices[0].message.content
+    
+    except Exception as e:
+        return f"发生错误: {str(e)}"
+
+if __name__ == "__main__":
+    print("--- 欢迎使用 DeepSeek 医学咨询 Chatbot (输入 'exit' 退出) ---")
+    while True:
+        user_question = input("用户: ")
+        if user_question.lower() == 'exit':
+            break
+        
+        # 3. 打印模型回复
+        answer = get_chatbot_response(user_question)
+        print(f"Chatbot: {answer}\n")
